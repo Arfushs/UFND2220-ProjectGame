@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
 
     private Vector2 _topLeftCorner;
     private Vector2 _bottomRightCorner;
+
+    public static event Action OnAppleCollected;
     
     private void Awake()
     {
@@ -59,6 +61,15 @@ public class Player : MonoBehaviour
         {
             
             transform.position = new Vector2(transform.position.x, _topLeftCorner.y);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Collectible"))
+        {
+            OnAppleCollected?.Invoke();
+            Destroy(other.gameObject);
         }
     }
 
