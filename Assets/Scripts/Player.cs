@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     private Vector2 _bottomRightCorner;
 
     public static event Action OnAppleCollected;
+    public static event Action OnTimeCollected;
     
     private void Awake()
     {
@@ -69,6 +70,12 @@ public class Player : MonoBehaviour
         if (other.CompareTag("Collectible"))
         {
             OnAppleCollected?.Invoke();
+            Destroy(other.gameObject);
+        }
+
+        if (other.CompareTag("TimeCollectible"))
+        {
+            OnTimeCollected?.Invoke();
             Destroy(other.gameObject);
         }
     }

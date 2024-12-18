@@ -16,9 +16,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject _collectiblesContainer;
     [SerializeField] private int _timeInSeconds;
     
-    private int _remainingTime;
+    private float _remainingTime;
     private int _neededScore;
     private int _currentScore;
+    
+    public static event Action OnGameLoseEvent;
+    public static event Action OnGameWinEvent;
 
     private void Awake()
     {
@@ -35,20 +38,39 @@ public class GameManager : MonoBehaviour
     private void OnEnable()
     {
         Player.OnAppleCollected += UpdateScore;
+        Player.OnAppleCollected += CheckScore;
+        Player.OnTimeCollected += IncreaseTime;
+        OnGameWinEvent += OnGameWin;
+        OnGameLoseEvent += OnGameLose;
+        
     }
 
     private void OnDisable()
     {
         Player.OnAppleCollected -= UpdateScore;
+        Player.OnTimeCollected -= IncreaseTime;
+        Player.OnAppleCollected -= CheckScore;
+        OnGameWinEvent -= OnGameWin;
+        OnGameLoseEvent -= OnGameLose;
+    }
+
+    private void CheckScore()
+    {
+        if(_currentScore >= _neededScore)
+            OnGameWinEvent?.Invoke();
     }
 
     private IEnumerator TimerCoroutine()
     {
         while (_remainingTime >= 0)
         {
-            yield return new WaitForSeconds(1);
-            _remainingTime -= 1;
+            yield return 0;
+            _remainingTime -= Time.deltaTime;
             UpdateTimeUI();
+        }
+        if (_currentScore < _neededScore)
+        {
+            OnGameLoseEvent?.Invoke();
         }
     }
     private void UpdateScore()
@@ -62,12 +84,29 @@ public class GameManager : MonoBehaviour
         _scoreText.text = _currentScore.ToString() + "/" + _neededScore.ToString();
     }
 
+    private void IncreaseTime()
+    {
+        _remainingTime += 2.5f;
+    }
+    
     private void UpdateTimeUI()
     {
         // Yüzdelik değeri doğru hesaplayarak string'e çeviriyoruz
         float percentage = (_remainingTime / (float)_timeInSeconds) * 100;
+        percentage = Mathf.Clamp(percentage, 0, 100);
         _timeText.text = "%" + percentage.ToString("F0"); // Tam sayı kısmını göstermek için "F0" formatı kullanılır
         _timeSlider.value = _remainingTime; // Slider değeri güncellenir
+    }
+
+    private void OnGameWin()
+    {
+        Debug.Log("Game Win");
+    }
+
+
+    private void OnGameLose()
+    {
+        Debug.Log("Game Lose");
     }
     
     
