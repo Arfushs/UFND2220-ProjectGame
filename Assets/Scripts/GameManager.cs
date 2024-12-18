@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -11,10 +12,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Slider _timeSlider;
     [SerializeField] private TextMeshProUGUI _timeText;
     [SerializeField] private TextMeshProUGUI _scoreText;
+    [SerializeField] private GameObject _pauseCanvas;
+    [SerializeField] private GameObject _loseCanvas;
     [Space]
     [Header("Level Configs")]
     [SerializeField] private GameObject _collectiblesContainer;
     [SerializeField] private int _timeInSeconds;
+    [SerializeField] private string _nextLevelName;
+    [SerializeField] private float _timerIncreaseCount = 2.5f;
     
     private float _remainingTime;
     private int _neededScore;
@@ -25,6 +30,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        Time.timeScale = 1;
         _neededScore = _collectiblesContainer.transform.childCount;
         _timeSlider.maxValue = _timeInSeconds;
         _remainingTime = _timeInSeconds;
@@ -32,8 +38,15 @@ public class GameManager : MonoBehaviour
         UpdateTimeUI();
         StartCoroutine(TimerCoroutine());
     }
-    
-    
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape) && _remainingTime > 0)
+        {
+            OnPauseScreen();
+        }
+    }
+
 
     private void OnEnable()
     {
@@ -86,7 +99,8 @@ public class GameManager : MonoBehaviour
 
     private void IncreaseTime()
     {
-        _remainingTime += 2.5f;
+        _remainingTime += _timerIncreaseCount;
+        _remainingTime = Mathf.Clamp(_remainingTime, 0, _timeInSeconds);
     }
     
     private void UpdateTimeUI()
@@ -98,15 +112,34 @@ public class GameManager : MonoBehaviour
         _timeSlider.value = _remainingTime; // Slider değeri güncellenir
     }
 
+    public void OnPauseScreen()
+    {
+        _pauseCanvas.SetActive(!_pauseCanvas.activeInHierarchy);
+        Time.timeScale = _pauseCanvas.activeInHierarchy ? 0 : 1;
+    }
+
+    public void LoadMainMenu()
+    {
+        SceneManager.LoadScene("StartScene");
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
     private void OnGameWin()
     {
         Debug.Log("Game Win");
+        SceneManager.LoadScene(_nextLevelName);
     }
 
 
     private void OnGameLose()
     {
         Debug.Log("Game Lose");
+        _loseCanvas.SetActive(true);
+        Time.timeScale = 0;
     }
     
     
