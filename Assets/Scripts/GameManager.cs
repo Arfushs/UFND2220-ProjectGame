@@ -14,6 +14,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _scoreText;
     [SerializeField] private GameObject _pauseCanvas;
     [SerializeField] private GameObject _loseCanvas;
+    [SerializeField] private GameObject _winCanvas;
+    
     [Space]
     [Header("Level Configs")]
     [SerializeField] private GameObject _collectiblesContainer;
@@ -25,11 +27,14 @@ public class GameManager : MonoBehaviour
     private int _neededScore;
     private int _currentScore;
     
+    private bool _isGameOver = false;
+    
     public static event Action OnGameLoseEvent;
     public static event Action OnGameWinEvent;
 
     private void Awake()
     {
+        _isGameOver = false;
         Time.timeScale = 1;
         _neededScore = _collectiblesContainer.transform.childCount;
         _timeSlider.maxValue = _timeInSeconds;
@@ -41,7 +46,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && _remainingTime > 0)
+        if (Input.GetKeyDown(KeyCode.Escape) && _remainingTime > 0 && !_isGameOver)
         {
             OnPauseScreen();
         }
@@ -130,13 +135,17 @@ public class GameManager : MonoBehaviour
 
     private void OnGameWin()
     {
+        _isGameOver = true;
         Debug.Log("Game Win");
-        SceneManager.LoadScene(_nextLevelName);
+        _winCanvas.SetActive(true);
+        Time.timeScale = 0;
+        
     }
 
 
     private void OnGameLose()
     {
+        _isGameOver = true;
         Debug.Log("Game Lose");
         _loseCanvas.SetActive(true);
         Time.timeScale = 0;
