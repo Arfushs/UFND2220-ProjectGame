@@ -3829,7 +3829,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8436351271391841075, guid: 8dac30a51b0a34dfe92450eece876f75, type: 3}
       propertyPath: _timeInSeconds
-      value: 8
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8436351271391841075, guid: 8dac30a51b0a34dfe92450eece876f75, type: 3}
       propertyPath: _timerIncreaseCount
